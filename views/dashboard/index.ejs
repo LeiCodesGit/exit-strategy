@@ -1,0 +1,113 @@
+<%- include('../partials/header', { pageTitle: 'Dashboard', activePage: 'dashboard' }) %>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">BS Computer Engineering · My Academic Tracker</p>
+  </div>
+</div>
+
+<!-- STATS ROW -->
+<div class="stats-grid">
+  <div class="stat-card stat-primary">
+    <div class="stat-value"><%= stats.progress %>%</div>
+    <div class="stat-label">Overall Progress</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:<%= stats.progress %>%"></div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value"><%= stats.compUnits %><span>/ <%= stats.total %></span></div>
+    <div class="stat-label">Units Completed</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-value"><%= stats.completed %></div>
+    <div class="stat-label">✅ Completed</div>
+  </div>
+  <div class="stat-card stat-purple">
+    <div class="stat-value"><%= stats.pending %></div>
+    <div class="stat-label">⏳ Pending Grade</div>
+  </div>
+  <div class="stat-card stat-red">
+    <div class="stat-value"><%= stats.retake %></div>
+    <div class="stat-label">🔴 Retake</div>
+  </div>
+  <div class="stat-card stat-yellow">
+    <div class="stat-value"><%= stats.toTake %></div>
+    <div class="stat-label">🟡 To Take</div>
+  </div>
+</div>
+
+<!-- CURRENT / ACTIVE COURSES -->
+<% if (currentCourses.length || pendingCourses.length || retakeCourses.length) { %>
+<section class="section">
+  <h2 class="section-title">Active This Term</h2>
+  <div class="active-grid">
+    <% currentCourses.forEach(c => { %>
+    <div class="active-card status-taking">
+      <div class="active-badge">Taking</div>
+      <div class="active-code"><%= c.code %></div>
+      <div class="active-name"><%= c.name %></div>
+      <div class="active-units"><%= c.units %> unit<%= c.units !== 1 ? 's' : '' %></div>
+      <button class="btn-update" onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">Update</button>
+    </div>
+    <% }) %>
+    <% pendingCourses.forEach(c => { %>
+    <div class="active-card status-pending">
+      <div class="active-badge">Pending</div>
+      <div class="active-code"><%= c.code %></div>
+      <div class="active-name"><%= c.name %></div>
+      <div class="active-units"><%= c.units %> unit<%= c.units !== 1 ? 's' : '' %></div>
+      <button class="btn-update" onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">Update</button>
+    </div>
+    <% }) %>
+    <% retakeCourses.forEach(c => { %>
+    <div class="active-card status-retake">
+      <div class="active-badge">Retake</div>
+      <div class="active-code"><%= c.code %></div>
+      <div class="active-name"><%= c.name %></div>
+      <div class="active-units"><%= c.units %> unit<%= c.units !== 1 ? 's' : '' %></div>
+      <button class="btn-update" onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">Update</button>
+    </div>
+    <% }) %>
+  </div>
+</section>
+<% } %>
+
+<!-- COURSE TABLE BY YEAR/TERM -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">All Courses</h2>
+    <a href="/courses" class="btn-link">View full tracker →</a>
+  </div>
+  <% yearOrder.forEach(yr => { %>
+    <% if (grouped[yr]) { %>
+    <div class="year-block">
+      <div class="year-label"><%= yr %></div>
+      <% termOrder.forEach(term => { %>
+        <% if (grouped[yr] && grouped[yr][term]) { %>
+        <div class="term-block">
+          <div class="term-label"><%= term %> Term</div>
+          <div class="course-table-wrap">
+            <table class="course-table">
+              <thead><tr><th>Code</th><th>Course</th><th>Units</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <% grouped[yr][term].forEach(c => { %>
+                <tr>
+                  <td class="td-code"><%= c.code %></td>
+                  <td class="td-name"><%= c.name %></td>
+                  <td class="td-units"><%= c.units > 0 ? c.units : '—' %></td>
+                  <td><span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>"><%= c.status %></span></td>
+                  <td><button class="btn-sm" onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">Edit</button></td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <% } %>
+      <% }) %>
+    </div>
+    <% } %>
+  <% }) %>
+</section>
+
+<%- include('../partials/modal') %>
+<%- include('../partials/footer') %>

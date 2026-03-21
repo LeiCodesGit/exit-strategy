@@ -1,0 +1,78 @@
+<%- include('../partials/header', { pageTitle: 'Roadmap', activePage: 'roadmap' }) %>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Roadmap & Critical Path</h1>
+    <p class="page-sub">3rd Year 3rd Term → Graduation</p>
+  </div>
+</div>
+
+<!-- CRITICAL PATH -->
+<section class="section">
+  <h2 class="section-title">🔗 Critical Path</h2>
+  <p class="section-desc">Courses that block your progress or graduation — resolve these first.</p>
+  <div class="critical-grid">
+    <% criticalPath.forEach(item => { %>
+    <% if (item.course) { %>
+    <div class="critical-card priority-<%= item.priority %>">
+      <div class="critical-top">
+        <span class="critical-code"><%= item.course.code %></span>
+        <span class="status-badge status-<%= item.course.status.toLowerCase().replace(' ','-') %>"><%= item.course.status %></span>
+      </div>
+      <div class="critical-name"><%= item.course.name %></div>
+      <div class="critical-reason"><%= item.reason %></div>
+      <button class="btn-sm" style="margin-top:.75rem" onclick="openModal('<%= item.course._id %>','<%= item.course.code %>','<%= item.course.status %>')">
+        Update Status
+      </button>
+    </div>
+    <% } %>
+    <% }) %>
+  </div>
+</section>
+
+<!-- ROADMAP TIMELINE -->
+<section class="section">
+  <h2 class="section-title">📅 Term-by-Term Roadmap</h2>
+  <div class="roadmap-timeline">
+    <% roadmap.forEach((sem, idx) => { %>
+    <div class="timeline-item">
+      <div class="timeline-dot color-<%= sem.color %>"></div>
+      <div class="timeline-content">
+        <div class="timeline-header">
+          <div class="timeline-label"><%= sem.label %></div>
+          <% if (sem.tag) { %><div class="timeline-tag"><%= sem.tag %></div><% } %>
+        </div>
+        <p class="timeline-note"><%= sem.note %></p>
+        <div class="course-table-wrap">
+          <table class="course-table">
+            <thead>
+              <tr><th>Code</th><th>Course</th><th>Units</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% sem.courses.forEach(c => { %>
+              <tr id="row-<%= c._id %>">
+                <td class="td-code"><%= c.code %></td>
+                <td class="td-name"><%= c.name %></td>
+                <td class="td-units"><%= c.units > 0 ? c.units : '—' %></td>
+                <td>
+                  <span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>">
+                    <%= c.status %>
+                  </span>
+                </td>
+                <td>
+                  <button class="btn-sm" onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">
+                    Edit
+                  </button>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</section>
+
+<%- include('../partials/modal') %>
+<%- include('../partials/footer') %>

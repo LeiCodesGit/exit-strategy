@@ -1,0 +1,87 @@
+<%- include('../partials/header', { pageTitle: 'Course Tracker', activePage: 'courses' }) %>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Course Tracker</h1>
+    <p class="page-sub">All <%= 215 %> units · BS Computer Engineering</p>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filter-bar">
+  <form action="/courses" method="GET" class="filter-form">
+    <select name="year" onchange="this.form.submit()">
+      <option value="">All Years</option>
+      <% ['1st Year','2nd Year','3rd Year','4th Year'].forEach(y => { %>
+        <option value="<%= y %>" <%= filters.year === y ? 'selected' : '' %>><%= y %></option>
+      <% }) %>
+    </select>
+    <select name="term" onchange="this.form.submit()">
+      <option value="">All Terms</option>
+      <% ['1st','2nd','3rd'].forEach(t => { %>
+        <option value="<%= t %>" <%= filters.term === t ? 'selected' : '' %>><%= t %> Term</option>
+      <% }) %>
+    </select>
+    <select name="status" onchange="this.form.submit()">
+      <option value="">All Statuses</option>
+      <% statuses.forEach(s => { %>
+        <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+      <% }) %>
+    </select>
+    <% if (filters.year || filters.term || filters.status) { %>
+      <a href="/courses" class="btn-ghost-sm">Clear filters</a>
+    <% } %>
+  </form>
+</div>
+
+<!-- COURSE TABLE -->
+<% yearOrder.forEach(yr => { %>
+  <% if (grouped[yr]) { %>
+  <div class="year-block">
+    <div class="year-label"><%= yr %></div>
+    <% termOrder.forEach(term => { %>
+      <% if (grouped[yr] && grouped[yr][term]) { %>
+      <div class="term-block">
+        <div class="term-label"><%= term %> Term</div>
+        <div class="course-table-wrap">
+          <table class="course-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Course Name</th>
+                <th>Prerequisites</th>
+                <th>Units</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% grouped[yr][term].forEach(c => { %>
+              <tr id="row-<%= c._id %>">
+                <td class="td-code"><%= c.code %></td>
+                <td class="td-name"><%= c.name %></td>
+                <td class="td-pre"><%= c.prerequisites || '—' %></td>
+                <td class="td-units"><%= c.units > 0 ? c.units : '—' %></td>
+                <td>
+                  <span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>">
+                    <%= c.status %>
+                  </span>
+                </td>
+                <td>
+                  <button class="btn-sm" onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">
+                    Edit
+                  </button>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <% } %>
+    <% }) %>
+  </div>
+  <% } %>
+<% }) %>
+
+<%- include('../partials/modal') %>
+<%- include('../partials/footer') %>

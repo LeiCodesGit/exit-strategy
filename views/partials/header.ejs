@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Exit Strategy — <%= typeof pageTitle !== 'undefined' ? pageTitle : 'My Academic Tracker' %></title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body>
+<% if (user) { %>
+<nav class="navbar">
+  <a href="/dashboard" class="nav-brand">Exit <span>Strategy</span></a>
+  <div class="nav-links">
+    <a href="/dashboard" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+    <a href="/courses"  class="<%= typeof activePage !== 'undefined' && activePage === 'courses'   ? 'active' : '' %>">Courses</a>
+    <a href="/roadmap"  class="<%= typeof activePage !== 'undefined' && activePage === 'roadmap'   ? 'active' : '' %>">Roadmap</a>
+  </div>
+  <div class="nav-user">
+    <span><%= user.name.split(' ')[0] %></span>
+    <form action="/logout" method="POST" style="display:inline">
+      <button type="submit" class="btn-logout">Sign out</button>
+    </form>
+  </div>
+</nav>
+<% } %>
+
+<% if (success && success.length) { %>
+  <div class="flash flash-success"><%= success[0] %></div>
+<% } %>
+<% if (error && error.length) { %>
+  <div class="flash flash-error"><%= error[0] %></div>
+<% } %>
+
+<main class="<%= user ? 'with-nav' : '' %>">

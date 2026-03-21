@@ -1,0 +1,28 @@
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div id="modal-code" class="modal-code"></div>
+        <div class="modal-title">Update Status</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Status</label>
+      <div class="status-options">
+        <% ['Completed','Taking','Pending','Retake','To Take','Future'].forEach(s => { %>
+        <label class="status-option status-opt-<%= s.toLowerCase().replace(' ','-') %>">
+          <input type="radio" name="modal-status" value="<%= s %>"/>
+          <span><%= s %></span>
+        </label>
+        <% }) %>
+      </div>
+      <label class="form-label" style="margin-top:1rem">Notes (optional)</label>
+      <textarea id="modal-notes" class="form-textarea" placeholder="e.g. Remedial on March 30..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveStatus()">Save</button>
+    </div>
+  </div>
+</div>
