@@ -1,0 +1,20 @@
+{
+    "name": "Exit Strategy",
+    "short_name": "Exit Strategy",
+    "start_url": "/dashboard",
+    "display": "standalone",
+    "background_color": "#0d0f14",
+    "theme_color": "#ffd700",
+    "icons": [
+        {
+        "src": "/img/exit-strategy-logo.png",
+        "sizes": "192x192",
+        "type": "image/png"
+        },
+        {
+        "src": "/img/exit-strategy-logo.png",
+        "sizes": "512x512",
+        "type": "image/png"
+        }
+    ]
+}
