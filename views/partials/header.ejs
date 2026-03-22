@@ -3,18 +3,25 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Exit Strategy — <%= typeof pageTitle !== 'undefined' ? pageTitle : 'My Academic Tracker' %></title>
+  <title>Exit Strategy | <%= typeof pageTitle !== 'undefined' ? pageTitle : 'My Academic Tracker' %></title>
   
+  <link rel="icon" type="image/x-icon" href="/img/exit-strategy.ico">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/main.css"/>
-</head>
+  <link rel="stylesheet" href="/css/base.css"/>
+  <link rel="stylesheet" href="/css/modal.css"/>
+  <%- typeof extraCSS !== 'undefined' ? extraCSS : '' %>
+  </head>
 <body>
 <% if (user) { %>
 <nav class="navbar">
-  <a href="/dashboard" class="nav-brand">Exit <span>Strategy</span></a>
+  <a href="/dashboard" class="nav-brand">
+    <img src="/img/exit-strategy-logo.png" alt="Exit Strategy Logo" style="height:28px;width:auto;vertical-align:middle;margin-right:8px;">
+    Exit <span>Strategy</span>
+  </a>
   <div class="nav-links">
     <a href="/dashboard" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
     <a href="/courses"  class="<%= typeof activePage !== 'undefined' && activePage === 'courses'   ? 'active' : '' %>">Courses</a>

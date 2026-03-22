@@ -1,3 +1,4 @@
+<!-- STATUS MODAL -->
 <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
@@ -10,7 +11,7 @@
     <div class="modal-body">
       <label class="form-label">Status</label>
       <div class="status-options">
-        <% ['Completed','Taking','Pending','Retake','To Take','Future'].forEach(s => { %>
+        <% ['Completed','Taking','Pending','Remedial', 'Retake','To Take'].forEach(s => { %>
         <label class="status-option status-opt-<%= s.toLowerCase().replace(' ','-') %>">
           <input type="radio" name="modal-status" value="<%= s %>"/>
           <span><%= s %></span>
@@ -23,6 +24,72 @@
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveStatus()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="edit-overlay" class="modal-overlay" onclick="closeEdit()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:520px">
+    <div class="modal-header">
+      <div>
+        <div id="edit-code" class="modal-code"></div>
+        <div class="modal-title">Edit Course</div>
+      </div>
+      <button class="modal-close" onclick="closeEdit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:0.75rem">
+        <label class="form-label">Course Name</label>
+        <input type="text" id="edit-name" class="form-input" placeholder="Course name"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
+        <div class="form-group">
+          <label class="form-label">Units</label>
+          <input type="number" id="edit-units" class="form-input" min="0" max="10"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Year Level</label>
+          <select id="edit-year" class="form-input">
+            <% ['1st Year','2nd Year','3rd Year','4th Year'].forEach(y => { %>
+              <option value="<%= y %>"><%= y %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
+        <div class="form-group">
+          <label class="form-label">Term</label>
+          <select id="edit-term" class="form-input">
+            <option value="1st">1st Term</option>
+            <option value="2nd">2nd Term</option>
+            <option value="3rd">3rd Term</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="edit-status" class="form-input">
+            <% ['Completed','Taking','Pending','Retake','To Take','Future'].forEach(s => { %>
+              <option value="<%= s %>"><%= s %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0.75rem">
+        <label class="form-label">Prerequisites</label>
+        <input type="text" id="edit-prereq" class="form-input" placeholder="e.g. MATH041, PHY035"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="edit-notes" class="form-textarea" placeholder="e.g. Remedial on March 30..." style="min-height:60px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn-delete" onclick="deleteCourse()">Delete</button>
+      <div style="display:flex;gap:0.75rem">
+        <button class="btn-ghost" onclick="closeEdit()">Cancel</button>
+        <button class="btn-primary" style="width:auto" onclick="saveEdit()">Save Changes</button>
+      </div>
     </div>
   </div>
 </div>

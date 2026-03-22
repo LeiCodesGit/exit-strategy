@@ -1,0 +1,66 @@
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius-lg); width: 100%; max-width: 460px;
+  margin: 1rem; animation: modalIn 0.2s ease;
+}
+@keyframes modalIn { from { opacity:0; transform: scale(0.96) translateY(8px); } }
+
+.modal-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.modal-code  { font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: var(--accent); }
+.modal-title { font-size: 0.825rem; color: var(--text2); margin-top: 0.15rem; }
+.modal-close {
+  background: none; border: none; color: var(--text3);
+  font-size: 1rem; cursor: pointer; padding: 0.25rem; transition: color 0.15s;
+}
+.modal-close:hover { color: var(--text); }
+
+.modal-body { padding: 1.25rem 1.5rem; }
+.form-label { font-size: 0.8rem; font-weight: 500; color: var(--text2); display: block; }
+
+.status-options { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.status-option {
+  cursor: pointer; border-radius: 8px;
+  border: 1px solid var(--border2); overflow: hidden;
+}
+.status-option input[type="radio"] { display: none; }
+.status-option span {
+  display: block; padding: 0.4rem 0.85rem;
+  font-size: 0.8rem; font-weight: 600; transition: all 0.15s;
+}
+.status-opt-completed:has(input:checked) { background: var(--green-bg);  border-color: var(--green); }
+.status-opt-completed:has(input:checked) span { color: var(--green-text); }
+.status-opt-taking:has(input:checked) { background: var(--orange-bg); border-color: var(--orange); }
+.status-opt-taking:has(input:checked) span { color: var(--orange-text); }
+.status-opt-pending:has(input:checked) { background: var(--purple-bg); border-color: var(--purple); }
+.status-opt-pending:has(input:checked) span { color: var(--purple-text); }
+.status-opt-retake:has(input:checked) { background: var(--red-bg);    border-color: var(--red); }
+.status-opt-retake:has(input:checked) span { color: var(--red-text); }
+.status-opt-to-take:has(input:checked) { background: var(--bg3); border-color: var(--text3); }
+.status-opt-to-take:has(input:checked) span { color: var(--text); }
+.status-opt-remedial:has(input:checked) { background: var(--orange-bg); border-color: var(--orange); }
+.status-opt-remedial:has(input:checked) span { color: var(--orange-text); }
+
+.form-textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 0.65rem 0.9rem;
+  color: var(--text); font-family: var(--font-body); font-size: 0.875rem;
+  resize: vertical; min-height: 80px; outline: none;
+  transition: border-color 0.15s; margin-top: 0.5rem;
+}
+.form-textarea:focus { border-color: var(--accent); }
+
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 0.75rem;
+  padding: 1rem 1.5rem; border-top: 1px solid var(--border);
+}

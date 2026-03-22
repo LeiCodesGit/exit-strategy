@@ -1,0 +1,52 @@
+/* Critical path grid */
+.critical-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem; margin-bottom: 1rem;
+}
+.critical-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.25rem;
+  border-top: 3px solid var(--border);
+}
+.priority-critical { border-top-color: var(--red); }
+.priority-high     { border-top-color: var(--yellow); }
+.priority-medium   { border-top-color: var(--purple); }
+.priority-low      { border-top-color: var(--teal); }
+
+.critical-top   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+.critical-code  { font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; }
+.critical-name  { font-size: 0.875rem; color: var(--text); line-height: 1.4; margin-bottom: 0.4rem; }
+.critical-reason{ font-size: 0.78rem; color: var(--text2); line-height: 1.4; }
+
+/* Timeline */
+.roadmap-timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item {
+  display: flex; gap: 1.5rem;
+  padding-bottom: 2rem; position: relative;
+}
+.timeline-item::before {
+  content: ''; position: absolute;
+  left: 10px; top: 24px; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.timeline-item:last-child::before { display: none; }
+
+.timeline-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid; flex-shrink: 0; margin-top: 2px;
+  background: var(--bg);
+}
+.color-teal  { border-color: var(--teal);   box-shadow: 0 0 10px rgba(34,211,238,0.3); }
+.color-blue  { border-color: var(--accent); }
+.color-green { border-color: var(--green);  box-shadow: 0 0 10px rgba(62,207,142,0.3); }
+
+.timeline-content { flex: 1; }
+.timeline-header  { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem; }
+.timeline-label   { font-family: var(--font-head); font-size: 1rem; font-weight: 700; }
+.timeline-tag {
+  background: var(--green-bg); color: var(--green-text);
+  border: 1px solid var(--green); border-radius: 20px;
+  padding: 0.15rem 0.6rem; font-size: 0.72rem; font-weight: 600;
+}
+.timeline-note { color: var(--text2); font-size: 0.82rem; margin-bottom: 0.85rem; }

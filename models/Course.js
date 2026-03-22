@@ -11,8 +11,8 @@ const courseSchema = new mongoose.Schema({
   units: { type: Number, default: 0 },
   status: {
     type: String,
-    enum: ['Completed', 'Taking', 'Pending', 'Retake', 'To Take', 'Future'],
-    default: 'Future'
+    enum: ['Completed', 'Taking', 'Pending', 'Retake', 'Remedial', 'To Take'],
+    default: 'To Take'
   },
   notes: { type: String, default: '' },
   updatedAt: { type: Date, default: Date.now }

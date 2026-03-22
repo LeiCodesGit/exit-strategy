@@ -1,0 +1,9 @@
+.filter-bar { margin-bottom: 2rem; }
+.filter-form { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.filter-form select {
+  background: var(--bg2); border: 1px solid var(--border2);
+  color: var(--text); border-radius: var(--radius); padding: 0.5rem 0.9rem;
+  font-family: var(--font-body); font-size: 0.875rem;
+  cursor: pointer; outline: none;
+}
+.filter-form select:focus { border-color: var(--accent); }

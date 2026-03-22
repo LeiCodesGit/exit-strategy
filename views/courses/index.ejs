@@ -1,8 +1,8 @@
-<%- include('../partials/header', { pageTitle: 'Course Tracker', activePage: 'courses' }) %>
+<%- include('../partials/header', { pageTitle: 'Course Tracker', activePage: 'courses', extraCSS: '<link rel="stylesheet" href="/css/courses.css"/>' }) %>
 <div class="page-header">
   <div>
     <h1 class="page-title">Course Tracker</h1>
-    <p class="page-sub">All <%= 215 %> units · BS Computer Engineering</p>
+    <p class="page-sub">All 215 units · BS Computer Engineering</p>
   </div>
 </div>
 
@@ -62,14 +62,14 @@
                 <td class="td-pre"><%= c.prerequisites || '—' %></td>
                 <td class="td-units"><%= c.units > 0 ? c.units : '—' %></td>
                 <td>
-                  <span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>">
+                  <span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>"
+                    style="cursor:pointer"
+                    onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">
                     <%= c.status %>
                   </span>
                 </td>
                 <td>
-                  <button class="btn-sm" onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">
-                    Edit
-                  </button>
+                  <button class="btn-sm" onclick="openEdit('<%= c._id %>','<%= c.code %>','<%= c.name %>',<%= c.units %>,'<%= c.yearLevel %>','<%= c.term %>','<%= c.status %>','<%= c.prerequisites %>')">Edit</button>
                 </td>
               </tr>
               <% }) %>
