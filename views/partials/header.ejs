@@ -30,6 +30,9 @@
     <a href="/dashboard" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
     <a href="/courses"  class="<%= typeof activePage !== 'undefined' && activePage === 'courses'   ? 'active' : '' %>">Courses</a>
     <a href="/roadmap"  class="<%= typeof activePage !== 'undefined' && activePage === 'roadmap'   ? 'active' : '' %>">Roadmap</a>
+    <% if (user && user.isAdmin) { %>
+    <a href="/admin"  class="<%= typeof activePage !== 'undefined' && activePage === 'admin' ? 'active' : '' %>" style="color:var(--accent-red, #e74c3c);">Admin</a>
+    <% } %>
   </div>
   <div class="nav-user">
     <span><%= user.name.split(' ')[0] %></span>
@@ -47,6 +50,9 @@
   <a href="/dashboard" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
   <a href="/courses"   class="<%= typeof activePage !== 'undefined' && activePage === 'courses'   ? 'active' : '' %>">Courses</a>
   <a href="/roadmap"   class="<%= typeof activePage !== 'undefined' && activePage === 'roadmap'   ? 'active' : '' %>">Roadmap</a>
+  <% if (user && user.isAdmin) { %>
+  <a href="/admin" class="<%= typeof activePage !== 'undefined' && activePage === 'admin' ? 'active' : '' %>" style="color:var(--accent-red,#e74c3c);">Admin</a>
+  <% } %>
 </div>
 <script>
 function toggleMobileNav() {

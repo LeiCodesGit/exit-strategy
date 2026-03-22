@@ -37,7 +37,7 @@ router.post('/register', async (req, res) => {
     const userCourses = COURSES_SEED.map(c => ({ ...c, userId: user._id }));
     await Course.insertMany(userCourses);
 
-    req.session.user = { id: user._id, name: user.name, email: user.email };
+    req.session.user = { id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin };
     req.flash('success', `Welcome to Exit Strategy, ${user.name}! Your courses have been loaded.`);
     res.redirect('/dashboard');
   } catch (err) {
@@ -55,7 +55,7 @@ router.post('/login', async (req, res) => {
       req.flash('error', 'Invalid email or password.');
       return res.redirect('/login');
     }
-    req.session.user = { id: user._id, name: user.name, email: user.email };
+    req.session.user = { id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin };
     res.redirect('/dashboard');
   } catch (err) {
     console.error(err);

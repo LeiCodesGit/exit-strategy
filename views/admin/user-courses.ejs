@@ -1,0 +1,216 @@
+<%- include('../partials/header', { pageTitle: "User's Courses", activePage: 'admin', extraCSS: '<link rel="stylesheet" href="/css/dashboard.css"/><link rel="stylesheet" href="/css/courses.css"/><link rel="stylesheet" href="/css/admin.css"/>' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><%= targetUser.name %>'s Courses</h1>
+    <p class="page-sub"><a href="/admin" style="color:var(--text-muted);">← Back to Admin</a> &nbsp;·&nbsp; <%= targetUser.email %></p>
+  </div>
+  <button class="btn-sm btn-delete" id="delete-all-btn" style="background:rgba(231,76,60,0.15);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);" onclick="deleteAllCourses()">
+    🗑 Delete All Courses
+  </button>
+</div>
+
+<% if (courses.length === 0) { %>
+<section class="section">
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <div class="empty-text">No courses found for this user</div>
+  </div>
+</section>
+<% } else { %>
+<section class="section">
+  <p class="active-meta"><%= courses.length %> courses &nbsp;·&nbsp; <%= courses.reduce((s,c) => s + (c.units||0), 0) %> units</p>
+  <div class="course-table-wrap">
+    <table class="course-table" id="courses-table">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Code</th>
+          <th>Course Name</th>
+          <th>Units</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% courses.forEach(c => { %>
+        <tr id="course-row-<%= c._id %>">
+          <td style="color:var(--text-muted);font-size:0.8rem;"><%= c.yearLevel %></td>
+          <td style="color:var(--text-muted);font-size:0.8rem;"><%= c.term %></td>
+          <td class="td-code"><%= c.code %></td>
+          <td class="td-name"><%= c.name %></td>
+          <td class="td-units"><%= c.units > 0 ? c.units : '—' %></td>
+          <td>
+            <span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>"><%= c.status %></span>
+          </td>
+          <td class="admin-actions">
+            <button class="btn-sm btn-edit" onclick='openEditCourse(<%= JSON.stringify({
+              _id: c._id,
+              name: c.name,
+              code: c.code,
+              units: c.units,
+              yearLevel: c.yearLevel,
+              term: c.term,
+              status: c.status,
+              prerequisites: c.prerequisites,
+              notes: c.notes
+            }) %>)'>Edit</button>
+            <button class="btn-sm btn-delete" onclick="deleteCourse('<%= c._id %>', '<%= c.code %>')">Delete</button>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<% } %>
+
+<!-- Edit Course Modal -->
+<div id="edit-course-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:480px;">
+    <h3 style="margin-bottom:1rem;">Edit Course</h3>
+    <div class="form-group">
+      <label>Code</label>
+      <input type="text" id="ec-code" class="form-input"/>
+    </div>
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="ec-name" class="form-input"/>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+      <div class="form-group">
+        <label>Units</label>
+        <input type="number" id="ec-units" class="form-input" min="0" max="9"/>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="ec-status" class="form-input">
+          <option>Completed</option>
+          <option>Taking</option>
+          <option>Pending</option>
+          <option>Retake</option>
+          <option>Remedial</option>
+          <option>To Take</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Year Level</label>
+        <select id="ec-year" class="form-input">
+          <option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Term</label>
+        <select id="ec-term" class="form-input">
+          <option>1st</option><option>2nd</option><option>3rd</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Prerequisites</label>
+      <input type="text" id="ec-prereqs" class="form-input" placeholder="Comma-separated codes"/>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="ec-notes" class="form-input" rows="2" style="resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1rem;">
+      <button class="btn-sm" onclick="document.getElementById('edit-course-modal').style.display='none'">Cancel</button>
+      <button id="save-course-btn" class="btn-sm btn-edit" style="background:rgba(52,152,219,0.2);color:#3498db;border-color:rgba(52,152,219,0.4);">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete All Confirm Modal -->
+<div id="delete-all-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:400px;">
+    <h3>Delete All Courses?</h3>
+    <p style="color:var(--text-muted);margin:0.75rem 0 1.5rem;">This will permanently delete all <%= courses.length %> courses for <strong><%= targetUser.name %></strong>. This cannot be undone.</p>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-sm" onclick="document.getElementById('delete-all-modal').style.display='none'">Cancel</button>
+      <button id="confirm-delete-all-btn" class="btn-sm btn-delete" style="background:rgba(231,76,60,0.2);color:#e74c3c;border-color:rgba(231,76,60,0.4);">Delete All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const userId = '<%= targetUser._id %>';
+let editingCourseId = null;
+
+function openEditCourse(course) {
+  editingCourseId = course._id;
+  document.getElementById('ec-code').value = course.code;
+  document.getElementById('ec-name').value = course.name;
+  document.getElementById('ec-units').value = course.units;
+  document.getElementById('ec-status').value = course.status;
+  document.getElementById('ec-year').value = course.yearLevel;
+  document.getElementById('ec-term').value = course.term;
+  document.getElementById('ec-prereqs').value = course.prerequisites || '';
+  document.getElementById('ec-notes').value = course.notes || '';
+  document.getElementById('edit-course-modal').style.display = 'flex';
+}
+
+document.getElementById('save-course-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('save-course-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try {
+    const res = await fetch(`/admin/courses/${editingCourseId}/edit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: document.getElementById('ec-code').value,
+        name: document.getElementById('ec-name').value,
+        units: document.getElementById('ec-units').value,
+        status: document.getElementById('ec-status').value,
+        yearLevel: document.getElementById('ec-year').value,
+        term: document.getElementById('ec-term').value,
+        prerequisites: document.getElementById('ec-prereqs').value,
+        notes: document.getElementById('ec-notes').value
+      })
+    });
+    const data = await res.json();
+    if (data.success) { location.reload(); }
+    else { alert(data.error || 'Failed to save.'); }
+  } catch(e) { alert('Network error.'); }
+  btn.textContent = 'Save'; btn.disabled = false;
+});
+
+async function deleteCourse(id, code) {
+  if (!confirm(`Delete course "${code}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`/admin/courses/${id}/delete`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) { document.getElementById(`course-row-${id}`)?.remove(); }
+    else { alert(data.error || 'Failed to delete.'); }
+  } catch(e) { alert('Network error.'); }
+}
+
+function deleteAllCourses() {
+  document.getElementById('delete-all-modal').style.display = 'flex';
+}
+
+document.getElementById('confirm-delete-all-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('confirm-delete-all-btn');
+  btn.textContent = 'Deleting...'; btn.disabled = true;
+  try {
+    const res = await fetch(`/admin/users/${userId}/courses/delete-all`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('courses-table')?.querySelectorAll('tbody tr').forEach(r => r.remove());
+      document.getElementById('delete-all-modal').style.display = 'none';
+      document.getElementById('delete-all-btn').disabled = true;
+    } else { alert(data.error || 'Failed.'); }
+  } catch(e) { alert('Network error.'); }
+  btn.textContent = 'Delete All'; btn.disabled = false;
+});
+
+// Close modals on backdrop click
+['edit-course-modal','delete-all-modal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+});
+</script>
+
+<%- include('../partials/footer') %>

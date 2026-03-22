@@ -46,6 +46,7 @@ app.use('/', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/courses', require('./routes/courses'));
 app.use('/roadmap', require('./routes/roadmap'));
+app.use('/admin', require('./routes/admin'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`running on http://localhost:${PORT}`));

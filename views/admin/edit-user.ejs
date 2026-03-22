@@ -1,0 +1,33 @@
+<%- include('../partials/header', { pageTitle: 'Edit User', activePage: 'admin', extraCSS: '<link rel="stylesheet" href="/css/dashboard.css"/><link rel="stylesheet" href="/css/admin.css"/>' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Edit User</h1>
+    <p class="page-sub"><a href="/admin" style="color:var(--text-muted);">← Back to Admin</a></p>
+  </div>
+</div>
+
+<section class="section" style="max-width:520px;">
+  <form action="/admin/users/<%= editUser._id %>/edit" method="POST" class="admin-form">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" name="name" value="<%= editUser.name %>" required class="form-input"/>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" name="email" value="<%= editUser.email %>" required class="form-input"/>
+    </div>
+    <div class="form-group form-checkbox">
+      <label class="checkbox-label">
+        <input type="checkbox" name="isAdmin" <%= editUser.isAdmin ? 'checked' : '' %> />
+        <span>Admin privileges</span>
+      </label>
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+      <a href="/admin" class="btn-sm">Cancel</a>
+      <button type="submit" class="btn-sm btn-edit" style="background:rgba(52,152,219,0.2);color:#3498db;border-color:rgba(52,152,219,0.4);">Save Changes</button>
+    </div>
+  </form>
+</section>
+
+<%- include('../partials/footer') %>

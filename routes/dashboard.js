@@ -17,6 +17,8 @@ router.get('/', auth, async (req, res) => {
   const compUnits  = completed.reduce((s, c) => s + (c.units || 0), 0);
   const progress   = compUnits > 0 ? Math.round((compUnits / total) * 100) : 0;
 
+  const byName = arr => [...arr].sort((a, b) => a.name.localeCompare(b.name));
+
   res.render('dashboard/index', {
     stats: {
       total, compUnits, progress,
@@ -26,10 +28,10 @@ router.get('/', auth, async (req, res) => {
       retake: retake.length + remedial.length,
       toTake:    toTake.length
     },
-    currentCourses:  taking,
-    pendingCourses:  pending,
-    retakeCourses:   retake,
-    remedialCourses: remedial,
+    currentCourses:  byName(taking),
+    pendingCourses:  byName(pending),
+    retakeCourses:   byName(retake),
+    remedialCourses: byName(remedial),
   });
 });
 

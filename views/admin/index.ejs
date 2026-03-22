@@ -1,0 +1,121 @@
+<%- include('../partials/header', { pageTitle: 'Admin Panel', activePage: 'admin', extraCSS: '<link rel="stylesheet" href="/css/dashboard.css"/><link rel="stylesheet" href="/css/admin.css"/>' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Admin Panel</h1>
+    <p class="page-sub">Manage users and their course data</p>
+  </div>
+  <div class="admin-badge">🔐 Admin</div>
+</div>
+
+<div class="admin-stats-row">
+  <div class="admin-stat">
+    <span class="admin-stat-val"><%= users.length %></span>
+    <span class="admin-stat-label">Total Users</span>
+  </div>
+  <div class="admin-stat">
+    <span class="admin-stat-val"><%= users.filter(u => u.isAdmin).length %></span>
+    <span class="admin-stat-label">Admins</span>
+  </div>
+  <div class="admin-stat">
+    <span class="admin-stat-val"><%= users.reduce((s,u) => s + u.courseCount, 0) %></span>
+    <span class="admin-stat-label">Total Courses</span>
+  </div>
+</div>
+
+<section class="section">
+  <h2 class="section-title">All Users</h2>
+  <div class="course-table-wrap">
+    <table class="course-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Courses</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(u => { %>
+        <tr id="user-row-<%= u._id %>">
+          <td class="td-name"><%= u.name %></td>
+          <td class="td-code" style="font-size:0.85rem;"><%= u.email %></td>
+          <td>
+            <% if (u.isAdmin) { %>
+              <span class="status-badge" style="background:rgba(231,76,60,0.15);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);">Admin</span>
+            <% } else { %>
+              <span class="status-badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted);">User</span>
+            <% } %>
+          </td>
+          <td>
+            <a href="/admin/users/<%= u._id %>/courses" class="btn-sm">
+              <%= u.courseCount %> courses
+            </a>
+          </td>
+          <td style="color:var(--text-muted);font-size:0.8rem;"><%= new Date(u.createdAt).toLocaleDateString() %></td>
+          <td class="admin-actions">
+            <a href="/admin/users/<%= u._id %>/edit" class="btn-sm btn-edit">Edit</a>
+            <% if (u._id.toString() !== user.id.toString()) { %>
+            <button class="btn-sm btn-delete" onclick="deleteUser('<%= u._id %>', '<%= u.name.replace(/'/g, '') %>')">Delete</button>
+            <% } else { %>
+            <span class="btn-sm" style="opacity:0.3;cursor:default;">You</span>
+            <% } %>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Delete Confirm Modal -->
+<div id="delete-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:420px;">
+    <h3 style="margin-bottom:0.5rem;">Delete User</h3>
+    <p id="delete-msg" style="color:var(--text-muted);margin-bottom:1.5rem;"></p>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+      <button class="btn-sm" onclick="document.getElementById('delete-modal').style.display='none'">Cancel</button>
+      <button id="confirm-delete-btn" class="btn-sm btn-delete" style="background:rgba(231,76,60,0.2);color:#e74c3c;border-color:rgba(231,76,60,0.4);">Delete User & Courses</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let pendingDeleteId = null;
+
+function deleteUser(id, name) {
+  pendingDeleteId = id;
+  document.getElementById('delete-msg').textContent = `Are you sure you want to delete "${name}"? This will permanently remove their account AND all their course data.`;
+  document.getElementById('delete-modal').style.display = 'flex';
+}
+
+document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+  if (!pendingDeleteId) return;
+  const btn = document.getElementById('confirm-delete-btn');
+  btn.textContent = 'Deleting...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(`/admin/users/${pendingDeleteId}/delete`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById(`user-row-${pendingDeleteId}`)?.remove();
+      document.getElementById('delete-modal').style.display = 'none';
+    } else {
+      alert(data.error || 'Failed to delete user.');
+    }
+  } catch (e) {
+    alert('Network error.');
+  }
+  btn.textContent = 'Delete User & Courses';
+  btn.disabled = false;
+  pendingDeleteId = null;
+});
+
+document.getElementById('delete-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+</script>
+
+<%- include('../partials/footer') %>
