@@ -1,6 +1,5 @@
 let currentCourseId = null;
 
-// ── STATUS MODAL ──────────────────────────────────
 function openModal(id, code, currentStatus, notes = '') {
   currentCourseId = id;
   document.getElementById('modal-code').textContent = code;
@@ -16,28 +15,51 @@ function closeModal() {
   currentCourseId = null;
 }
 
+
+function showError(msg) {
+  const t = document.createElement('div');
+  t.className   = 'flash flash-error';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.5s'; }, 4000);
+  setTimeout(() => t.remove(), 4500);
+}
+
 async function saveStatus() {
   if (!currentCourseId) return;
   const selected = document.querySelector('input[name="modal-status"]:checked');
   if (!selected) { alert('Please select a status.'); return; }
   const status = selected.value;
   const notes  = document.getElementById('modal-notes').value;
+
   try {
     const res  = await fetch(`/courses/${currentCourseId}/status`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, notes })
     });
+
+    if (!res.ok) throw new Error('Server error');
+
     const data = await res.json();
+
+    if (data.prereqError) {
+      closeModal();
+      showError(`⚠ Cannot set to Taking — the following prerequisites are not yet completed: ${data.missing}`);
+      return;
+    }
+
     if (data.success) {
       updateBadgeInRow(currentCourseId, status);
       closeModal();
       showToast(`Status updated to "${status}"`);
     }
-  } catch (err) { alert('Failed to update. Please try again.'); }
+  } catch (err) {
+    console.error(err);
+    showError('Failed to update. Please try again.');
+  }
 }
 
-// ── EDIT MODAL ────────────────────────────────────
 function openEdit(id, code, name, units, year, term, status, prereq, notes) {
   currentCourseId = id;
   document.getElementById('edit-code').textContent  = code;
@@ -100,7 +122,6 @@ async function deleteCourse() {
   } catch (err) { alert('Failed to delete. Please try again.'); }
 }
 
-// ── HELPERS ───────────────────────────────────────
 function updateBadgeInRow(id, status) {
   const row = document.getElementById(`row-${id}`);
   if (!row) return;

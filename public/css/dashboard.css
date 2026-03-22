@@ -40,7 +40,7 @@
   border-radius: var(--radius-lg); padding: 1.25rem;
   border-left: 3px solid var(--border);
 }
-.active-card.status-taking   { border-left-color: var(--orange); }
+.active-card.status-taking  { border-left-color: var(--teal); }
 .active-card.status-pending  { border-left-color: var(--purple); }
 .active-card.status-retake   { border-left-color: var(--red); }
 .active-card.status-remedial { border-left-color: var(--orange); }
@@ -49,7 +49,7 @@
   font-size: 0.72rem; font-weight: 600;
   text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem;
 }
-.status-taking   .active-badge { color: var(--orange); }
+.status-taking .active-badge { color: var(--teal); }
 .status-pending  .active-badge { color: var(--purple); }
 .status-retake   .active-badge { color: var(--red); }
 .status-remedial .active-badge { color: var(--orange); }

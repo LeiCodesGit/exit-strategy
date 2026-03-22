@@ -40,8 +40,8 @@
 }
 .status-opt-completed:has(input:checked) { background: var(--green-bg);  border-color: var(--green); }
 .status-opt-completed:has(input:checked) span { color: var(--green-text); }
-.status-opt-taking:has(input:checked) { background: var(--orange-bg); border-color: var(--orange); }
-.status-opt-taking:has(input:checked) span { color: var(--orange-text); }
+.status-opt-taking:has(input:checked)    { background: var(--teal-bg); border-color: var(--teal); }
+.status-opt-taking:has(input:checked) span { color: var(--teal-text); }
 .status-opt-pending:has(input:checked) { background: var(--purple-bg); border-color: var(--purple); }
 .status-opt-pending:has(input:checked) span { color: var(--purple-text); }
 .status-opt-retake:has(input:checked) { background: var(--red-bg);    border-color: var(--red); }

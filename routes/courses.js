@@ -36,10 +36,32 @@ router.get('/:id', auth, async (req, res) => {
   res.json(course);
 });
 
-// Update status only
+// Update course status
 router.post('/:id/status', auth, async (req, res) => {
   try {
     const { status, notes } = req.body;
+    const course = await Course.findOne({ _id: req.params.id, userId: req.session.user.id });
+    if (!course) return res.status(404).json({ success: false, error: 'Course not found' });
+
+    if (status === 'Taking' && course.prerequisites) {
+      const prereqCodes = course.prerequisites.split(',').map(p => p.trim()).filter(Boolean);
+      if (prereqCodes.length > 0) {
+        const prereqCourses = await Course.find({
+          userId: req.session.user.id,
+          code: { $in: prereqCodes }
+        });
+        const notCompleted = prereqCourses.filter(p => p.status !== 'Completed');
+        if (notCompleted.length > 0) {
+          return res.json({
+            success: false,
+            prereqError: true,
+            missing: notCompleted.map(p => p.code).join(', '),
+            message: `Prerequisites not completed: ${notCompleted.map(p => p.code).join(', ')}`
+          });
+        }
+      }
+    }
+
     await Course.findOneAndUpdate(
       { _id: req.params.id, userId: req.session.user.id },
       { status, notes, updatedAt: Date.now() }
