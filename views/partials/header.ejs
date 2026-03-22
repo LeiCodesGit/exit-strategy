@@ -22,7 +22,8 @@
     <img src="/img/exit-strategy-logo.png" alt="Exit Strategy Logo" style="height:28px;width:auto;vertical-align:middle;margin-right:8px;">
     Exit <span>Strategy</span>
   </a>
-  <div class="nav-links">
+  <!-- Desktop nav links -->
+  <div class="nav-links nav-links-desktop">
     <a href="/dashboard" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
     <a href="/courses"  class="<%= typeof activePage !== 'undefined' && activePage === 'courses'   ? 'active' : '' %>">Courses</a>
     <a href="/roadmap"  class="<%= typeof activePage !== 'undefined' && activePage === 'roadmap'   ? 'active' : '' %>">Roadmap</a>
@@ -32,8 +33,27 @@
     <form action="/logout" method="POST" style="display:inline">
       <button type="submit" class="btn-logout">Sign out</button>
     </form>
+    <!-- Hamburger (mobile only) -->
+    <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+<!-- Mobile nav drawer -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="/dashboard" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+  <a href="/courses"   class="<%= typeof activePage !== 'undefined' && activePage === 'courses'   ? 'active' : '' %>">Courses</a>
+  <a href="/roadmap"   class="<%= typeof activePage !== 'undefined' && activePage === 'roadmap'   ? 'active' : '' %>">Roadmap</a>
+</div>
+<script>
+function toggleMobileNav() {
+  document.getElementById('mobile-nav').classList.toggle('open');
+}
+// Close drawer when a link is tapped
+document.querySelectorAll('.mobile-nav a').forEach(a =>
+  a.addEventListener('click', () => document.getElementById('mobile-nav').classList.remove('open'))
+);
+</script>
 <% } %>
 
 <% if (success && success.length) { %>

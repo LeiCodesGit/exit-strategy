@@ -173,6 +173,17 @@ main.with-nav { padding-top: calc(var(--nav-h) + 2rem); }
 .td-name  { color: var(--text); max-width: 340px; }
 .td-pre   { color: var(--text3); font-size: 0.78rem; max-width: 200px; }
 .td-units { color: var(--text2); text-align: center; }
+.td-status { text-align: center; }
+
+/* Courses page: col 4 = Units, col 5 = Status */
+.course-table th:nth-child(4),
+.course-table td:nth-child(4),
+.course-table th:nth-child(5),
+.course-table td:nth-child(5) { text-align: center; }
+
+/* Dashboard table: col 3 = Units, col 4 = Status */
+.course-table th:nth-child(3),
+.course-table td:nth-child(3) { text-align: center; }
 
 .year-block { margin-bottom: 2rem; }
 .year-label {
@@ -187,9 +198,137 @@ main.with-nav { padding-top: calc(var(--nav-h) + 2rem); }
   text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem;
 }
 
-@media (max-width: 768px) {
-  main { padding: 1rem; }
-  main.with-nav { padding-top: calc(var(--nav-h) + 1rem); }
-  .navbar { padding: 0 1rem; gap: 1rem; }
-  .nav-links a { padding: 0.35rem 0.6rem; font-size: 0.82rem; }
+/* ── TABLET (max 900px) ─────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Only hide prerequisites on courses page (has .td-pre class) */
+  .td-pre { display: none; }
+}
+
+/* ── MOBILE (max 640px) ─────────────────────────────────── */
+@media (max-width: 640px) {
+  html { font-size: 14px; }
+
+  main { padding: 0.75rem; }
+  main.with-nav { padding-top: calc(var(--nav-h) + 0.75rem); }
+
+  /* ── Navbar ── */
+  .navbar {
+    padding: 0 0.75rem;
+    gap: 0;
+    justify-content: space-between;
+  }
+  .nav-brand { font-size: 1.1rem; }
+  .nav-brand img { height: 22px; }
+  .nav-user span { display: none; }
+  .btn-logout { padding: 0.25rem 0.6rem; font-size: 0.75rem; }
+
+  /* ── Page header ── */
+  .page-title { font-size: 1.5rem; }
+  .page-sub   { font-size: 0.8rem; }
+
+  /* ── Courses page table: hide Prerequisites (td-pre) and Units (td-units) ── */
+  /* Use class selectors — safe for all tables regardless of column position    */
+  .td-pre   { display: none; }
+  .td-units { display: none; }
+
+  .course-table th,
+  .course-table td { padding: 0.55rem 0.65rem; }
+  .td-name { font-size: 0.8rem; }
+  .td-code { font-size: 0.78rem; }
+
+  /* ── Filter bar ── */
+  .filter-form { flex-direction: column; align-items: stretch; }
+  .filter-form select,
+  .filter-form input[type="text"] {
+    width: 100%;
+    font-size: 0.875rem;
+  }
+
+  /* ── Year / term labels ── */
+  .year-label { font-size: 0.78rem; }
+  .term-label { font-size: 0.72rem; }
+
+  /* ── Flash toasts ── */
+  .flash {
+    width: calc(100% - 1.5rem);
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  /* ── Buttons ── */
+  .btn-sm { padding: 0.3rem 0.55rem; font-size: 0.74rem; }
+  .btn-primary { font-size: 0.85rem; padding: 0.7rem 1.25rem; }
+  .btn-ghost   { padding: 0.55rem 1rem; font-size: 0.82rem; }
+  .status-badge { font-size: 0.68rem; padding: 0.2rem 0.5rem; }
+}
+
+/* ── Hamburger & mobile nav drawer ───────────────────────── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 2px;
+  margin-left: 0.5rem;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text2);
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+.nav-hamburger:hover span { background: var(--text); }
+
+/* Desktop nav links */
+.nav-links,
+.nav-links-desktop { display: flex; gap: 0.25rem; flex: 1; }
+.nav-links a,
+.nav-links-desktop a {
+  color: var(--text2); text-decoration: none;
+  padding: 0.4rem 0.85rem; border-radius: 7px;
+  font-size: 0.9rem; font-weight: 500;
+  transition: all 0.15s;
+}
+.nav-links a:hover, .nav-links a.active,
+.nav-links-desktop a:hover, .nav-links-desktop a.active { color: var(--text); background: var(--bg3); }
+.nav-links a.active,
+.nav-links-desktop a.active { color: var(--accent); }
+
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; right: 0;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  z-index: 99;
+  flex-direction: column;
+  padding: 0.5rem 0;
+}
+.mobile-nav.open { display: flex; }
+.mobile-nav a {
+  padding: 0.85rem 1.25rem;
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s, color 0.15s;
+}
+.mobile-nav a:last-child { border-bottom: none; }
+.mobile-nav a:hover,
+.mobile-nav a.active {
+  background: var(--bg3);
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .nav-links,
+  .nav-links-desktop { display: none; }
+  .nav-hamburger { display: flex; }
 }

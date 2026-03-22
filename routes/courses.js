@@ -39,11 +39,11 @@ router.get('/:id', auth, async (req, res) => {
 // Update course status
 router.post('/:id/status', auth, async (req, res) => {
   try {
-    const { status, notes } = req.body;
+    const { status, notes, waiver } = req.body;
     const course = await Course.findOne({ _id: req.params.id, userId: req.session.user.id });
     if (!course) return res.status(404).json({ success: false, error: 'Course not found' });
 
-    if (status === 'Taking' && course.prerequisites) {
+    if (!waiver && status === 'Taking' && course.prerequisites) {
       const prereqCodes = course.prerequisites.split(',').map(p => p.trim()).filter(Boolean);
       if (prereqCodes.length > 0) {
         const prereqCourses = await Course.find({

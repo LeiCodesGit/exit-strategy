@@ -11,7 +11,7 @@
     <div class="modal-body">
       <label class="form-label">Status</label>
       <div class="status-options">
-        <% ['Completed','Taking','Pending','Remedial', 'Retake','To Take'].forEach(s => { %>
+        <% ['Completed','Taking','Pending','Remedial','Retake','To Take'].forEach(s => { %>
         <label class="status-option status-opt-<%= s.toLowerCase().replace(' ','-') %>">
           <input type="radio" name="modal-status" value="<%= s %>"/>
           <span><%= s %></span>
@@ -69,7 +69,7 @@
         <div class="form-group">
           <label class="form-label">Status</label>
           <select id="edit-status" class="form-input">
-            <% ['Completed','Taking','Pending','Retake','To Take','Future'].forEach(s => { %>
+            <% ['Completed','Taking','Pending','Remedial','Retake','To Take'].forEach(s => { %>
               <option value="<%= s %>"><%= s %></option>
             <% }) %>
           </select>
@@ -90,6 +90,27 @@
         <button class="btn-ghost" onclick="closeEdit()">Cancel</button>
         <button class="btn-primary" style="width:auto" onclick="saveEdit()">Save Changes</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- WAIVER MODAL -->
+<div id="waiver-overlay" class="modal-overlay" onclick="closeWaiver()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-code" style="color:var(--red)">⚠ Prerequisite Warning</div>
+        <div class="modal-title">Some prerequisites are not yet completed</div>
+      </div>
+      <button class="modal-close" onclick="closeWaiver()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="waiver-missing" style="background:var(--red-bg);border:1px solid var(--red);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.875rem;color:var(--red-text)"></div>
+      <p style="color:var(--text2);font-size:0.875rem">Do you want to waive this requirement and proceed anyway?</p>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn-ghost" onclick="closeWaiver()">Cancel</button>
+      <button class="btn-primary" style="width:auto;background:var(--red);border:none" onclick="confirmWaiver()">Yes, Apply Waiver</button>
     </div>
   </div>
 </div>

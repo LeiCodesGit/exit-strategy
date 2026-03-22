@@ -37,3 +37,11 @@
   .auth-page { flex-direction: column; gap: 2rem; text-align: center; }
   .auth-brand h1 { font-size: 2rem; }
 }
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  .auth-page { flex-direction: column; gap: 1.5rem; padding: 1.25rem; text-align: center; }
+  .auth-brand h1 { font-size: 2rem; }
+  .auth-brand p  { font-size: 0.875rem; }
+  .auth-card { padding: 1.5rem 1.25rem; }
+}

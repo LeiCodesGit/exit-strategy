@@ -48,8 +48,8 @@
               <tr>
                 <th>Code</th>
                 <th>Course Name</th>
-                <th>Prerequisites</th>
-                <th>Units</th>
+                <th class="td-pre">Prerequisites</th>
+                <th class="td-units">Units</th>
                 <th>Status</th>
                 <th></th>
               </tr>
@@ -69,7 +69,7 @@
                   </span>
                 </td>
                 <td>
-                  <button class="btn-sm" onclick="openEdit('<%= c._id %>','<%= c.code %>','<%= c.name %>',<%= c.units %>,'<%= c.yearLevel %>','<%= c.term %>','<%= c.status %>','<%= c.prerequisites %>')">Edit</button>
+                  <button class="btn-sm" onclick="openEdit('<%= c._id %>','<%= c.code %>','<%= c.name %>','<%= c.units %>','<%= c.yearLevel %>','<%= c.term %>','<%= c.status %>','<%= c.prerequisites %>')">Edit</button>
                 </td>
               </tr>
               <% }) %>

@@ -50,3 +50,21 @@
   padding: 0.15rem 0.6rem; font-size: 0.72rem; font-weight: 600;
 }
 .timeline-note { color: var(--text2); font-size: 0.82rem; margin-bottom: 0.85rem; }
+
+/* ── TABLET ── */
+@media (max-width: 900px) {
+  .critical-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  .critical-grid { grid-template-columns: 1fr; }
+  .critical-card { padding: 1rem; }
+
+  .timeline-item { gap: 0.85rem; padding-bottom: 1.5rem; }
+  .timeline-dot  { width: 16px; height: 16px; margin-top: 3px; }
+  .timeline-item::before { left: 7px; }
+  .timeline-label { font-size: 0.9rem; }
+  .timeline-note  { font-size: 0.78rem; }
+  .timeline-header { flex-wrap: wrap; gap: 0.4rem; }
+}

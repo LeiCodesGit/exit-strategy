@@ -87,6 +87,23 @@
   margin-top: -0.5rem; margin-bottom: 1rem;
 }
 
-@media (max-width: 768px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+/* ── TABLET ── */
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.65rem; }
+  .stat-card  { padding: 1rem 1.1rem; }
+  .stat-value { font-size: 1.75rem; }
+  .stat-label { font-size: 0.75rem; }
+
+  .section-title { font-size: 1rem; }
+  .active-meta   { font-size: 0.78rem; }
+
+  .view-tracker-link { font-size: 0.85rem; }
+
+  .empty-state  { padding: 2rem 1rem; }
+  .empty-text   { font-size: 1rem; }
 }
