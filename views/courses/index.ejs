@@ -1,9 +1,124 @@
 <%- include('../partials/header', { pageTitle: 'Course Tracker', activePage: 'courses', extraCSS: '<link rel="stylesheet" href="/css/courses.css"/>' }) %>
+
 <div class="page-header">
   <div>
     <h1 class="page-title">Course Tracker</h1>
     <p class="page-sub">All 215 units · BS Computer Engineering</p>
   </div>
+  <button class="btn-sm suggest-toggle" onclick="toggleSuggestions()">💡 What to Take Next</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SMART SUGGESTIONS PANEL
+══════════════════════════════════════ -->
+<div id="suggestions-panel" class="suggestions-panel" style="display:none;">
+  <div class="sg-header">
+    <div>
+      <h2 class="sg-title">💡 Smart Course Suggestions</h2>
+      <p class="sg-sub">Based on your completed courses and prerequisites</p>
+    </div>
+    <button class="sg-close" onclick="toggleSuggestions()">✕ Close</button>
+  </div>
+
+  <!-- URGENT / CRITICAL -->
+  <% if (suggestions.urgent.length) { %>
+  <div class="sg-section">
+    <div class="sg-section-label sg-urgent">⚠ Take These First — Critical Path</div>
+    <div class="sg-cards">
+      <% suggestions.urgent.forEach(s => { %>
+      <div class="sg-card sg-card-urgent">
+        <div class="sg-card-top">
+          <span class="sg-code"><%= s.course.code %></span>
+          <span class="sg-units"><%= s.course.units > 0 ? s.course.units + 'u' : '—' %></span>
+        </div>
+        <div class="sg-name"><%= s.course.name %></div>
+        <div class="sg-meta">
+          <span class="sg-year"><%= s.course.yearLevel %> · <%= s.course.term %> Term</span>
+        </div>
+        <div class="sg-reasons">
+          <% s.reasons.forEach(r => { %><span class="sg-reason sg-reason-urgent"><%= r %></span><% }) %>
+          <% if (s.unlockCount > 0) { %><span class="sg-reason">Unlocks <%= s.unlockCount %> course<%= s.unlockCount > 1 ? 's' : '' %></span><% } %>
+        </div>
+        <% if (s.course.prerequisites) { %>
+        <div class="sg-prereq">✓ Prereqs: <span><%= s.course.prerequisites %></span></div>
+        <% } %>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- RECOMMENDED -->
+  <% if (suggestions.recommended.length) { %>
+  <div class="sg-section">
+    <div class="sg-section-label sg-recommended">✅ Recommended Next</div>
+    <div class="sg-cards">
+      <% suggestions.recommended.forEach(s => { %>
+      <div class="sg-card sg-card-recommended">
+        <div class="sg-card-top">
+          <span class="sg-code"><%= s.course.code %></span>
+          <span class="sg-units"><%= s.course.units > 0 ? s.course.units + 'u' : '—' %></span>
+        </div>
+        <div class="sg-name"><%= s.course.name %></div>
+        <div class="sg-meta">
+          <span class="sg-year"><%= s.course.yearLevel %> · <%= s.course.term %> Term</span>
+        </div>
+        <div class="sg-reasons">
+          <% s.reasons.forEach(r => { %><span class="sg-reason"><%= r %></span><% }) %>
+          <% if (s.unlockCount > 0) { %><span class="sg-reason">Unlocks <%= s.unlockCount %> course<%= s.unlockCount > 1 ? 's' : '' %></span><% } %>
+        </div>
+        <% if (s.course.prerequisites) { %>
+        <div class="sg-prereq">✓ Prereqs: <span><%= s.course.prerequisites %></span></div>
+        <% } %>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- ALSO AVAILABLE -->
+  <% if (suggestions.available.length) { %>
+  <div class="sg-section">
+    <div class="sg-section-label sg-available">📋 Also Available</div>
+    <div class="sg-cards sg-cards-sm">
+      <% suggestions.available.forEach(s => { %>
+      <div class="sg-card sg-card-available">
+        <div class="sg-card-top">
+          <span class="sg-code"><%= s.course.code %></span>
+          <span class="sg-units"><%= s.course.units > 0 ? s.course.units + 'u' : '—' %></span>
+        </div>
+        <div class="sg-name"><%= s.course.name %></div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- BLOCKED -->
+  <% if (suggestions.blocked.length) { %>
+  <div class="sg-section">
+    <div class="sg-section-label sg-blocked">🔒 Blocked — Finish These Prerequisites First</div>
+    <div class="sg-cards sg-cards-sm">
+      <% suggestions.blocked.forEach(b => { %>
+      <div class="sg-card sg-card-blocked">
+        <div class="sg-card-top">
+          <span class="sg-code"><%= b.course.code %></span>
+          <span class="sg-units"><%= b.course.units > 0 ? b.course.units + 'u' : '—' %></span>
+        </div>
+        <div class="sg-name"><%= b.course.name %></div>
+        <div class="sg-missing">Missing: <span><%= b.missing.join(', ') %></span></div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (!suggestions.urgent.length && !suggestions.recommended.length && !suggestions.available.length) { %>
+  <div class="sg-empty">
+    <div style="font-size:2rem;margin-bottom:0.5rem;">🎉</div>
+    <div>All eligible courses are already in progress or completed!</div>
+  </div>
+  <% } %>
 </div>
 
 <!-- FILTERS -->
@@ -36,52 +151,131 @@
 <!-- COURSE TABLE -->
 <% yearOrder.forEach(yr => { %>
   <% if (grouped[yr]) { %>
-  <div class="year-block">
-    <div class="year-label"><%= yr %></div>
-    <% termOrder.forEach(term => { %>
-      <% if (grouped[yr] && grouped[yr][term]) { %>
-      <div class="term-block">
-        <div class="term-label"><%= term %> Term</div>
-        <div class="course-table-wrap">
-          <table class="course-table">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Course Name</th>
-                <th class="td-pre">Prerequisites</th>
-                <th class="td-units">Units</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <% grouped[yr][term].forEach(c => { %>
-              <tr id="row-<%= c._id %>">
-                <td class="td-code"><%= c.code %></td>
-                <td class="td-name"><%= c.name %></td>
-                <td class="td-pre"><%= c.prerequisites || '—' %></td>
-                <td class="td-units"><%= c.units > 0 ? c.units : '—' %></td>
-                <td>
-                  <span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>"
-                    style="cursor:pointer"
-                    onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">
-                    <%= c.status %>
-                  </span>
-                </td>
-                <td>
-                  <button class="btn-sm" onclick="openEdit('<%= c._id %>','<%= c.code %>','<%= c.name %>','<%= c.units %>','<%= c.yearLevel %>','<%= c.term %>','<%= c.status %>','<%= c.prerequisites %>')">Edit</button>
-                </td>
-              </tr>
-              <% }) %>
-            </tbody>
-          </table>
+  <%
+    // Check if ALL courses in this year are completed
+    let allDone = true;
+    termOrder.forEach(term => {
+      if (grouped[yr] && grouped[yr][term]) {
+        grouped[yr][term].forEach(c => {
+          if (c.status !== 'Completed') allDone = false;
+        });
+      }
+    });
+    // Count totals for year header
+    let yearTotal = 0, yearDone = 0;
+    termOrder.forEach(term => {
+      if (grouped[yr] && grouped[yr][term]) {
+        grouped[yr][term].forEach(c => { yearTotal++; if (c.status === 'Completed') yearDone++; });
+      }
+    });
+    const yearPct = yearTotal ? Math.round((yearDone / yearTotal) * 100) : 0;
+    const yearId = yr.replace(/ /g, '-').toLowerCase();
+  %>
+  <div class="year-block <%= allDone ? 'year-collapsed' : '' %>" id="yb-<%= yearId %>">
+    <div class="year-label year-label-toggle" onclick="toggleYear('<%= yearId %>')">
+      <div class="year-label-left">
+        <span class="year-chevron"><%= allDone ? '▶' : '▼' %></span>
+        <%= yr %>
+        <% if (allDone) { %><span class="year-done-badge">✓ Completed</span><% } %>
+      </div>
+      <div class="year-label-right">
+        <span class="year-progress-text"><%= yearDone %>/<%= yearTotal %> courses</span>
+        <div class="year-mini-bar">
+          <div class="year-mini-fill" style="width:<%= yearPct %>%"></div>
         </div>
       </div>
-      <% } %>
-    <% }) %>
+    </div>
+    <div class="year-body" id="ybody-<%= yearId %>">
+      <% termOrder.forEach(term => { %>
+        <% if (grouped[yr] && grouped[yr][term]) { %>
+        <%
+          let termDone = grouped[yr][term].every(c => c.status === 'Completed');
+          let termId = yearId + '-t' + term.replace(/[^a-z0-9]/gi,'');
+        %>
+        <div class="term-block <%= termDone ? 'term-collapsed' : '' %>" id="tb-<%= termId %>">
+          <div class="term-label term-label-toggle" onclick="toggleTerm('<%= termId %>')">
+            <span class="term-chevron"><%= termDone ? '▶' : '▼' %></span>
+            <%= term %> Term
+            <% if (termDone) { %><span class="term-done-badge">✓ All done</span><% } %>
+          </div>
+          <div class="term-body" id="tbody-<%= termId %>">
+            <div class="course-table-wrap">
+              <table class="course-table">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Course Name</th>
+                    <th class="td-pre">Prerequisites</th>
+                    <th class="td-units">Units</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% grouped[yr][term].forEach(c => { %>
+                  <tr id="row-<%= c._id %>">
+                    <td class="td-code"><%= c.code %></td>
+                    <td class="td-name"><%= c.name %></td>
+                    <td class="td-pre"><%= c.prerequisites || '—' %></td>
+                    <td class="td-units"><%= c.units > 0 ? c.units : '—' %></td>
+                    <td>
+                      <span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>"
+                        style="cursor:pointer"
+                        onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">
+                        <%= c.status %>
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn-sm" onclick="openEdit('<%= c._id %>','<%= c.code %>','<%= c.name %>','<%= c.units %>','<%= c.yearLevel %>','<%= c.term %>','<%= c.status %>','<%= c.prerequisites %>')">Edit</button>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <% } %>
+      <% }) %>
+    </div>
   </div>
   <% } %>
 <% }) %>
+
+<script>
+function toggleSuggestions() {
+  const panel = document.getElementById('suggestions-panel');
+  const isHidden = panel.style.display === 'none' || panel.style.display === '';
+  panel.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleYear(id) {
+  const block  = document.getElementById('yb-' + id);
+  const body   = document.getElementById('ybody-' + id);
+  const chev   = block.querySelector('.year-chevron');
+  const isOpen = !block.classList.contains('year-collapsed');
+  block.classList.toggle('year-collapsed', isOpen);
+  body.style.display = isOpen ? 'none' : '';
+  chev.textContent   = isOpen ? '▶' : '▼';
+}
+
+function toggleTerm(id) {
+  const block  = document.getElementById('tb-' + id);
+  const body   = document.getElementById('tbody-' + id);
+  const chev   = block.querySelector('.term-chevron');
+  const isOpen = !block.classList.contains('term-collapsed');
+  block.classList.toggle('term-collapsed', isOpen);
+  body.style.display = isOpen ? 'none' : '';
+  chev.textContent   = isOpen ? '▶' : '▼';
+}
+
+// Apply initial collapsed state from server render
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.year-collapsed .year-body').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('.term-collapsed .term-body').forEach(b => b.style.display = 'none');
+});
+</script>
 
 <%- include('../partials/modal') %>
 <%- include('../partials/footer') %>

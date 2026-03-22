@@ -1,78 +1,510 @@
 <%- include('../partials/header', { pageTitle: 'Roadmap', activePage: 'roadmap', extraCSS: '<link rel="stylesheet" href="/css/roadmap.css"/>' }) %>
+
 <div class="page-header">
   <div>
-    <h1 class="page-title">Roadmap & Critical Path</h1>
-    <p class="page-sub">3rd Year 3rd Term → Graduation</p>
+    <h1 class="page-title">Roadmap & Exit Strategy</h1>
+    <p class="page-sub">Interactive curriculum planner · BS Computer Engineering</p>
   </div>
 </div>
 
-<!-- CRITICAL PATH -->
-<section class="section">
-  <h2 class="section-title">🔗 Critical Path</h2>
-  <p class="section-desc">Courses that block your progress or graduation — resolve these first.</p>
-  <div class="critical-grid">
-    <% criticalPath.forEach(item => { %>
-    <% if (item.course) { %>
-    <div class="critical-card priority-<%= item.priority %>">
-      <div class="critical-top">
-        <span class="critical-code"><%= item.course.code %></span>
-        <span class="status-badge status-<%= item.course.status.toLowerCase().replace(' ','-') %>"><%= item.course.status %></span>
-      </div>
-      <div class="critical-name"><%= item.course.name %></div>
-      <div class="critical-reason"><%= item.reason %></div>
-      <button class="btn-sm" style="margin-top:.75rem" onclick="openModal('<%= item.course._id %>','<%= item.course.code %>','<%= item.course.status %>')">
-        Update Status
-      </button>
-    </div>
-    <% } %>
-    <% }) %>
-  </div>
-</section>
+<!-- TAB NAV -->
+<div class="rm-tabs">
+  <button class="rm-tab active" onclick="switchTab('tree', this)">Curriculum Tree</button>
+  <button class="rm-tab" onclick="switchTab('planner', this)">Semester Planner</button>
+  <button class="rm-tab" onclick="switchTab('exit', this)">Exit Strategy</button>
+</div>
 
-<!-- ROADMAP TIMELINE -->
-<section class="section">
-  <h2 class="section-title">📅 Term-by-Term Roadmap</h2>
-  <div class="roadmap-timeline">
-    <% roadmap.forEach((sem, idx) => { %>
-    <div class="timeline-item">
-      <div class="timeline-dot color-<%= sem.color %>"></div>
-      <div class="timeline-content">
-        <div class="timeline-header">
-          <div class="timeline-label"><%= sem.label %></div>
-          <% if (sem.tag) { %><div class="timeline-tag"><%= sem.tag %></div><% } %>
+<!-- TAB 1: CURRICULUM TREE -->
+<div id="tab-tree" class="rm-panel active">
+  <div class="tree-legend">
+    <span class="leg-item"><span class="leg-dot leg-completed"></span>Completed</span>
+    <span class="leg-item"><span class="leg-dot leg-taking"></span>Taking</span>
+    <span class="leg-item"><span class="leg-dot leg-unlocked"></span>Eligible</span>
+    <span class="leg-item"><span class="leg-dot leg-locked"></span>Locked</span>
+    <span class="leg-item"><span class="leg-dot leg-critical"></span>Critical</span>
+  </div>
+  <div class="tree-controls">
+    <input type="text" id="tree-search" placeholder="Search code or name…" oninput="filterTree(this.value)" class="tree-search-input"/>
+    <div class="tree-filter-btns">
+      <button class="tree-filter-btn active" onclick="setTreeFilter('all',this)">All</button>
+      <button class="tree-filter-btn" onclick="setTreeFilter('unlocked',this)">Eligible</button>
+      <button class="tree-filter-btn" onclick="setTreeFilter('locked',this)">Locked</button>
+      <button class="tree-filter-btn" onclick="setTreeFilter('critical',this)">Critical</button>
+    </div>
+  </div>
+  <div id="tree-container"></div>
+</div>
+
+<!-- TAB 2: AUTO SEMESTER PLANNER -->
+<div id="tab-planner" class="rm-panel">
+  <div class="auto-planner-header">
+    <div>
+      <h2 class="auto-planner-title">⚡ Auto Semester Planner</h2>
+      <p class="auto-planner-sub">Automatically schedules your remaining courses respecting prerequisites and unit caps</p>
+    </div>
+  </div>
+  <div class="auto-planner-settings">
+    <div class="aps-field">
+      <label>Max Units Per Term</label>
+      <input type="number" id="ap-unit-cap" value="21" min="9" max="27" class="aps-input"/>
+    </div>
+    <div class="aps-field">
+      <label>Prioritize</label>
+      <select id="ap-priority" class="aps-input">
+        <option value="critical">Critical Path First</option>
+        <option value="prereqs">Most Prerequisites First</option>
+        <option value="units">Highest Units First</option>
+        <option value="year">Year Order</option>
+      </select>
+    </div>
+    <div class="aps-field">
+      <label>Max Terms to Plan</label>
+      <input type="number" id="ap-max-terms" value="6" min="1" max="12" class="aps-input"/>
+    </div>
+    <button class="btn-sm ap-generate-btn" onclick="generatePlan()">⚡ Generate Plan</button>
+  </div>
+  <div id="auto-plan-output"></div>
+</div>
+
+<!-- TAB 3: EXIT STRATEGY -->
+<div id="tab-exit" class="rm-panel">
+  <div class="exit-hero">
+    <div class="exit-hero-title">When do you want to graduate?</div>
+    <div class="exit-goal-row">
+      <div class="exit-goal-field">
+        <label>Target Graduation Term</label>
+        <select id="grad-term-select">
+          <option value="">-- Pick a term --</option>
+        </select>
+      </div>
+      <button class="btn-sm exit-calc-btn" onclick="calcGraduation()">Calculate</button>
+    </div>
+    <div id="exit-result" class="exit-result" style="display:none;"></div>
+  </div>
+  <div id="pace-alert-box" class="pace-alert-box" style="display:none;"></div>
+
+  <section class="section">
+    <h2 class="section-title">Requirements Checklist</h2>
+    <div class="req-grid">
+      <% checklist.forEach(cat => { %>
+      <div class="req-card">
+        <div class="req-card-top">
+          <span class="req-name"><%= cat.name %></span>
+          <span class="req-count"><%= cat.done %> / <%= cat.total %></span>
         </div>
-        <p class="timeline-note"><%= sem.note %></p>
-        <div class="course-table-wrap">
-          <table class="course-table">
-            <thead>
-              <tr><th>Code</th><th>Course</th><th class="td-units">Units</th><th>Status</th><th></th></tr>
-            </thead>
-            <tbody>
-              <% sem.courses.forEach(c => { %>
-              <tr id="row-<%= c._id %>">
-                <td class="td-code"><%= c.code %></td>
-                <td class="td-name"><%= c.name %></td>
-                <td class="td-units"><%= c.units > 0 ? c.units : '—' %></td>
-                <td>
-                  <span class="status-badge status-<%= c.status.toLowerCase().replace(' ','-') %>">
-                    <%= c.status %>
-                  </span>
-                </td>
-                <td>
-                  <button class="btn-sm" onclick="openModal('<%= c._id %>','<%= c.code %>','<%= c.status %>')">
-                    Edit
-                  </button>
-                </td>
-              </tr>
-              <% }) %>
-            </tbody>
-          </table>
+        <div class="req-bar-bg">
+          <div class="req-bar-fill" style="width:<%= cat.pct %>%;background:<%= cat.color %>;"></div>
         </div>
+        <div class="req-pct"><%= cat.pct %>%</div>
+      </div>
+      <% }) %>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Overall Progress</h2>
+    <div class="exit-stats-grid">
+      <div class="exit-stat-card">
+        <div class="exit-stat-val stat-green"><%= stats.compUnits %></div>
+        <div class="exit-stat-label">Units Completed</div>
+      </div>
+      <div class="exit-stat-card">
+        <div class="exit-stat-val stat-yellow"><%= stats.remainingUnits %></div>
+        <div class="exit-stat-label">Units Remaining</div>
+      </div>
+      <div class="exit-stat-card">
+        <div class="exit-stat-val stat-teal"><%= stats.taking %></div>
+        <div class="exit-stat-label">Currently Taking</div>
+      </div>
+      <div class="exit-stat-card">
+        <div class="exit-stat-val stat-muted"><%= stats.toTake %></div>
+        <div class="exit-stat-label">To Take</div>
       </div>
     </div>
-    <% }) %>
-  </div>
-</section>
+  </section>
+</div>
 
-<%- include('../partials/modal') %>
+<div id="node-popup" class="node-popup" style="display:none;"></div>
+
+<script>
+const ALL_COURSES = <%- courses %>;
+const STATS = <%- JSON.stringify(stats) %>;
+const UNIT_CAP = 21;
+
+// Critical path — dynamic from prereq graph + explicit graduation blockers
+function computeCriticalCodes(courses) {
+  const prereqCount = {};
+  courses.forEach(c => {
+    if (!c.prerequisites) return;
+    c.prerequisites.split(',').map(p => p.trim()).filter(Boolean).forEach(p => {
+      prereqCount[p] = (prereqCount[p] || 0) + 1;
+    });
+  });
+  const dynamic = new Set(Object.entries(prereqCount).filter(([,v]) => v >= 3).map(([k]) => k));
+  ['ECE101-3','MATH800E','CPE801E','RES101','CPE802E','CAP200D','CPE199R-1','CPE803E','CPE198-3','CPE198-4',
+   'MATH041','MATH042','MATH056','MATH116','CPE101-1','CPE103-4','CS105L','CPE142L'].forEach(c => dynamic.add(c));
+  return dynamic;
+}
+const CRITICAL_CODES = computeCriticalCodes(ALL_COURSES);
+const YEAR_ORDER = ['1st Year','2nd Year','3rd Year','4th Year'];
+const TERM_ORDER = ['1st','2nd','3rd'];
+const completedCodes = new Set(ALL_COURSES.filter(c => c.status === 'Completed').map(c => c.code));
+
+function isUnlocked(course) {
+  if (course.status !== 'To Take') return true;
+  if (!course.prerequisites || !course.prerequisites.trim()) return true;
+  return course.prerequisites.split(',').map(p=>p.trim()).filter(Boolean).every(p => completedCodes.has(p));
+}
+
+// Tab switching
+function switchTab(name, btn) {
+  document.querySelectorAll('.rm-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.rm-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'exit') buildGradTermOptions();
+}
+
+// ══════════════════════════════════════════
+// TAB 1 · CURRICULUM TREE
+// ══════════════════════════════════════════
+function buildTree() {
+  const container = document.getElementById('tree-container');
+  const grouped = {};
+  YEAR_ORDER.forEach(y => { grouped[y] = {}; TERM_ORDER.forEach(t => grouped[y][t] = []); });
+  ALL_COURSES.forEach(c => { if (grouped[c.yearLevel]?.[c.term]) grouped[c.yearLevel][c.term].push(c); });
+
+  YEAR_ORDER.forEach(year => {
+    let yearCourses = [];
+    TERM_ORDER.forEach(t => yearCourses = yearCourses.concat(grouped[year][t] || []));
+    if (!yearCourses.length) return;
+
+    const yearDone = yearCourses.every(c => c.status === 'Completed');
+    const yearId   = year.replace(/ /g, '-').toLowerCase();
+    const doneCnt  = yearCourses.filter(c => c.status === 'Completed').length;
+
+    const yearEl = document.createElement('div');
+    yearEl.className = 'tree-year';
+
+    const yearHeader = document.createElement('div');
+    yearHeader.className = 'tree-year-header';
+    yearHeader.innerHTML = `
+      <div class="tree-year-label-row">
+        <span class="tree-chev">${yearDone ? '▶' : '▼'}</span>
+        <span class="tree-year-name">${year}</span>
+        ${yearDone ? '<span class="tree-year-done">✓ Completed</span>' : ''}
+        <span class="tree-year-count">${doneCnt}/${yearCourses.length}</span>
+      </div>
+    `;
+
+    const yearBody = document.createElement('div');
+    yearBody.className = 'tree-year-body';
+    if (yearDone) yearBody.style.display = 'none';
+
+    yearHeader.addEventListener('click', () => {
+      const open = yearBody.style.display !== 'none';
+      yearBody.style.display = open ? 'none' : '';
+      yearHeader.querySelector('.tree-chev').textContent = open ? '▶' : '▼';
+    });
+
+    TERM_ORDER.forEach(term => {
+      const courses = grouped[year][term];
+      if (!courses.length) return;
+
+      const termDone = courses.every(c => c.status === 'Completed');
+
+      const termHeader = document.createElement('div');
+      termHeader.className = 'tree-term-header';
+      termHeader.innerHTML = `
+        <span class="tree-term-chev">${termDone ? '▶' : '▼'}</span>
+        <span>Term ${term}</span>
+        ${termDone ? '<span class="tree-term-done">✓ All done</span>' : ''}
+      `;
+
+      const tableWrap = document.createElement('div');
+      tableWrap.className = 'tree-table-wrap';
+      if (termDone) tableWrap.style.display = 'none';
+
+      const table = document.createElement('table');
+      table.className = 'tree-table';
+      table.innerHTML = '<thead><tr><th>Code</th><th>Course Name</th><th>Units</th><th>Status</th><th>Flags</th></tr></thead>';
+      const tbody = document.createElement('tbody');
+
+      courses.forEach(c => {
+        const unlocked  = isUnlocked(c);
+        const critical  = CRITICAL_CODES.has(c.code);
+        const filterTag = critical ? 'critical' : (!unlocked ? 'locked' : (c.status === 'To Take' ? 'unlocked' : 'done'));
+
+        const tr = document.createElement('tr');
+        tr.className = `tt-row tt-${c.status.toLowerCase().replace(/ /g,'-')} ${critical ? 'tt-critical' : ''} ${!unlocked ? 'tt-locked' : ''}`;
+        tr.dataset.filter = filterTag;
+        tr.dataset.code   = c.code;
+        tr.dataset.name   = c.name.toLowerCase();
+        tr.style.cursor   = 'pointer';
+
+        const flags = [];
+        if (critical)                         flags.push('<span class="tf-crit">⚠ Critical</span>');
+        if (unlocked && c.status === 'To Take') flags.push('<span class="tf-eligible">✓ Eligible</span>');
+        if (!unlocked)                         flags.push('<span class="tf-locked">🔒 Locked</span>');
+
+        tr.innerHTML = `
+          <td class="tt-code">${c.code}</td>
+          <td class="tt-name">${c.name}${c.prerequisites ? `<div class="tt-prereq">Needs: ${c.prerequisites}</div>` : ''}</td>
+          <td class="tt-units">${c.units > 0 ? c.units : '—'}</td>
+          <td class="tt-status"><span class="status-badge status-${c.status.toLowerCase().replace(/ /g,'-')}">${c.status}</span></td>
+          <td class="tt-flags">${flags.join(' ')}</td>
+        `;
+        tr.addEventListener('click', e => { e.stopPropagation(); showNodePopup(c, tr); });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      tableWrap.appendChild(table);
+
+      termHeader.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = tableWrap.style.display !== 'none';
+        tableWrap.style.display = open ? 'none' : '';
+        termHeader.querySelector('.tree-term-chev').textContent = open ? '▶' : '▼';
+      });
+
+      yearBody.appendChild(termHeader);
+      yearBody.appendChild(tableWrap);
+    });
+
+    yearEl.appendChild(yearHeader);
+    yearEl.appendChild(yearBody);
+    container.appendChild(yearEl);
+  });
+}
+
+let currentTreeFilter = 'all';
+function setTreeFilter(f, btn) {
+  currentTreeFilter = f;
+  document.querySelectorAll('.tree-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyTreeFilter();
+}
+function filterTree(q) { applyTreeFilter(); }
+function applyTreeFilter() {
+  const q = (document.getElementById('tree-search').value || '').toLowerCase();
+  document.querySelectorAll('.tt-row').forEach(row => {
+    const matchQ = !q || row.dataset.code.toLowerCase().includes(q) || row.dataset.name.includes(q);
+    const matchF = currentTreeFilter === 'all' || row.dataset.filter === currentTreeFilter;
+    row.style.display = matchQ && matchF ? '' : 'none';
+  });
+}
+
+function showNodePopup(c, anchor) {
+  const popup = document.getElementById('node-popup');
+  const unlocked = isUnlocked(c);
+  const critical = CRITICAL_CODES.has(c.code);
+  popup.innerHTML = `
+    <div class="np-header">
+      <div><div class="np-code">${c.code}</div><div class="np-name">${c.name}</div></div>
+      <button class="np-close" onclick="document.getElementById('node-popup').style.display='none'">✕</button>
+    </div>
+    <div class="np-body">
+      <div class="np-row"><span>Status</span><span class="status-badge status-${c.status.toLowerCase().replace(/ /g,'-')}">${c.status}</span></div>
+      <div class="np-row"><span>Units</span><span>${c.units > 0 ? c.units : '—'}</span></div>
+      <div class="np-row"><span>Year · Term</span><span>${c.yearLevel} · ${c.term}</span></div>
+      ${c.prerequisites ? `<div class="np-row"><span>Prerequisites</span><span class="np-prereq">${c.prerequisites}</span></div>` : ''}
+      ${c.coRequisites  ? `<div class="np-row"><span>Co-requisites</span><span>${c.coRequisites}</span></div>` : ''}
+      ${critical ? '<div class="np-alert np-crit">⚠ Critical Path — missing this delays graduation</div>' : ''}
+      ${unlocked && c.status === 'To Take' ? '<div class="np-alert np-ok">✓ You are eligible to take this course</div>' : ''}
+      ${!unlocked ? '<div class="np-alert np-lock">🔒 Prerequisites not yet completed</div>' : ''}
+    </div>
+  `;
+  const rect = anchor.getBoundingClientRect();
+  popup.style.display = 'block';
+  let left = rect.right + 10;
+  let top  = rect.top + window.scrollY;
+  if (left + 300 > window.innerWidth - 20) left = rect.left - 310;
+  if (top + 200  > window.innerHeight + window.scrollY) top = Math.max(0, rect.bottom + window.scrollY - 200);
+  popup.style.left = Math.max(8, left) + 'px';
+  popup.style.top  = top + 'px';
+}
+document.addEventListener('click', e => {
+  const popup = document.getElementById('node-popup');
+  if (popup && !popup.contains(e.target) && !e.target.closest('.tt-row')) popup.style.display = 'none';
+});
+
+buildTree();
+
+// ══════════════════════════════════════════
+// TAB 2 · AUTO SEMESTER PLANNER
+// ══════════════════════════════════════════
+function generatePlan() {
+  const unitCap  = parseInt(document.getElementById('ap-unit-cap').value)  || 21;
+  const maxTerms = parseInt(document.getElementById('ap-max-terms').value) || 6;
+  const priority = document.getElementById('ap-priority').value;
+
+  const completed = new Set(ALL_COURSES.filter(c => ['Completed','Taking','Pending'].includes(c.status)).map(c => c.code));
+  let remaining   = ALL_COURSES.filter(c => ['To Take','Retake','Remedial'].includes(c.status));
+
+  const terms = [];
+  let safety = 0;
+
+  while (remaining.length > 0 && terms.length < maxTerms) {
+    if (++safety > 50) break;
+
+    let eligible = remaining.filter(c => {
+      if (!c.prerequisites || !c.prerequisites.trim()) return true;
+      return c.prerequisites.split(',').map(p => p.trim()).filter(Boolean).every(p => completed.has(p));
+    });
+
+    if (!eligible.length) break;
+
+    eligible = sortByPriority(eligible, priority);
+
+    const termCourses = [];
+    let termUnits = 0;
+
+    for (const c of eligible) {
+      const u = c.units || 0;
+      if (u === 0 || termUnits + u <= unitCap) {
+        termCourses.push(c);
+        termUnits += u;
+        remaining = remaining.filter(r => r.code !== c.code);
+        if (termUnits >= unitCap && u > 0) break;
+      }
+    }
+
+    if (!termCourses.length) break;
+    terms.push({ courses: termCourses, units: termUnits });
+    termCourses.forEach(c => completed.add(c.code));
+  }
+
+  renderPlan(terms, remaining, unitCap);
+}
+
+function sortByPriority(courses, priority) {
+  return [...courses].sort((a, b) => {
+    if (priority === 'critical') {
+      const diff = (CRITICAL_CODES.has(b.code) ? 1 : 0) - (CRITICAL_CODES.has(a.code) ? 1 : 0);
+      if (diff !== 0) return diff;
+    }
+    if (priority === 'prereqs' || priority === 'critical') {
+      const au = ALL_COURSES.filter(c => c.prerequisites?.split(',').map(p=>p.trim()).includes(a.code)).length;
+      const bu = ALL_COURSES.filter(c => c.prerequisites?.split(',').map(p=>p.trim()).includes(b.code)).length;
+      if (au !== bu) return bu - au;
+    }
+    if (priority === 'units') return (b.units || 0) - (a.units || 0);
+    const ys = { '1st Year':1,'2nd Year':2,'3rd Year':3,'4th Year':4 };
+    const ts = { '1st':1,'2nd':2,'3rd':3 };
+    return ((ys[a.yearLevel]||0)*10 + (ts[a.term]||0)) - ((ys[b.yearLevel]||0)*10 + (ts[b.term]||0));
+  });
+}
+
+function renderPlan(terms, leftover, unitCap) {
+  const out = document.getElementById('auto-plan-output');
+  if (!terms.length) {
+    out.innerHTML = '<div class="ap-empty">No courses could be scheduled — all remaining courses may have unmet prerequisites.</div>';
+    return;
+  }
+
+  const names = ['Next Term','Term 2','Term 3','Term 4','Term 5','Term 6','Term 7','Term 8','Term 9','Term 10','Term 11','Term 12'];
+  let html = `<div class="ap-summary">📅 ${terms.length} term${terms.length>1?'s':''} planned · ${terms.reduce((s,t)=>s+t.units,0)} units scheduled · ${leftover.length} courses unscheduled</div>`;
+
+  terms.forEach((term, i) => {
+    const over = term.units > unitCap;
+    const wlClass = term.units > unitCap*0.85 ? 'wl-heavy' : term.units > unitCap*0.6 ? 'wl-mid' : 'wl-light';
+    const wlLabel = term.units > unitCap*0.85 ? '🔥 Heavy' : term.units > unitCap*0.6 ? '⚡ Moderate' : '✅ Light';
+    html += `
+    <div class="ap-term">
+      <div class="ap-term-head">
+        <span class="ap-term-name">${names[i] || 'Term '+(i+1)}</span>
+        <span class="ap-term-units ${over ? 'ap-over' : ''}">${term.units}u / ${unitCap}u cap</span>
+        <span class="ap-workload ${wlClass}">${wlLabel}</span>
+      </div>
+      <div class="ap-table-wrap">
+        <table class="ap-table">
+          <thead><tr><th>Code</th><th>Course Name</th><th>Units</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${term.courses.map(c => {
+              const crit = CRITICAL_CODES.has(c.code);
+              return `<tr class="${crit ? 'ap-row-crit' : ''}">
+                <td class="ap-code">${c.code}</td>
+                <td class="ap-name">${c.name}</td>
+                <td class="ap-units">${c.units > 0 ? c.units : '—'}</td>
+                <td><span class="status-badge status-${c.status.toLowerCase().replace(/ /g,'-')}">${c.status}</span></td>
+                <td>${crit ? '<span class="ap-crit-badge">⚠ Critical</span>' : ''}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+
+  if (leftover.length) {
+    html += `
+    <div class="ap-leftover">
+      <div class="ap-leftover-title">⚠ ${leftover.length} course${leftover.length>1?'s':''} not scheduled (prerequisites unmet within ${document.getElementById('ap-max-terms').value} terms)</div>
+      <div class="ap-leftover-list">${leftover.map(c => `<span class="ap-leftover-code">${c.code}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  out.innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// TAB 3 · EXIT STRATEGY
+// ══════════════════════════════════════════
+function buildGradTermOptions() {
+  const sel = document.getElementById('grad-term-select');
+  if (sel.options.length > 1) return;
+  const now = new Date();
+  let year = now.getFullYear();
+  let term = now.getMonth() < 4 ? 2 : now.getMonth() < 8 ? 3 : 1;
+  if (term === 1) year++;
+  const termNames = { 1: 'June', 2: 'October', 3: 'February' };
+  for (let i = 0; i < 15; i++) {
+    const opt = document.createElement('option');
+    const displayYear = term === 3 ? year + 1 : year;
+    opt.value = JSON.stringify({ term, year: displayYear });
+    opt.textContent = `${termNames[term]} ${displayYear}  (Term ${term})`;
+    sel.appendChild(opt);
+    term = term === 3 ? 1 : term + 1;
+    if (term === 1) year++;
+  }
+}
+
+function calcGraduation() {
+  const sel = document.getElementById('grad-term-select');
+  if (!sel.value) return;
+  const { term: gradTerm, year: gradYear } = JSON.parse(sel.value);
+  const now = new Date();
+  const curTermIdx = now.getMonth() < 4 ? 2 : now.getMonth() < 8 ? 3 : 1;
+  const curYear    = now.getFullYear();
+  const toNum      = (y, t) => y * 3 + t;
+  const termsLeft  = Math.max(1, toNum(gradYear, gradTerm) - toNum(curYear, curTermIdx));
+  const avgUnits   = Math.ceil(STATS.remainingUnits / termsLeft);
+  const termNames  = { 1: 'June', 2: 'October', 3: 'February' };
+
+  document.getElementById('exit-result').style.display = 'block';
+  document.getElementById('exit-result').innerHTML = `
+    <div class="er-title">🎯 Goal: Graduate ${termNames[gradTerm]} ${gradYear}</div>
+    <div class="er-grid">
+      <div class="er-item"><div class="er-val">${termsLeft}</div><div class="er-lbl">Terms Left</div></div>
+      <div class="er-item"><div class="er-val">${STATS.remainingUnits}u</div><div class="er-lbl">Units Left</div></div>
+      <div class="er-item"><div class="er-val ${avgUnits > 21 ? 'val-red' : avgUnits >= 18 ? 'val-yellow' : 'val-green'}">${avgUnits}u</div><div class="er-lbl">Avg / Term</div></div>
+    </div>
+  `;
+
+  const alertEl = document.getElementById('pace-alert-box');
+  alertEl.style.display = 'block';
+  if (avgUnits > UNIT_CAP) {
+    alertEl.className = 'pace-alert-box pace-danger';
+    alertEl.innerHTML = `⚠️ <strong>Pace too aggressive.</strong> Needing ${avgUnits} units/term exceeds the ${UNIT_CAP}-unit cap. Push graduation back by 1–2 terms.`;
+  } else if (avgUnits >= 18) {
+    alertEl.className = 'pace-alert-box pace-warn';
+    alertEl.innerHTML = `⚡ <strong>Heavy load ahead.</strong> To graduate by ${termNames[gradTerm]} ${gradYear}, you need ${avgUnits} units/term. Prioritize critical path courses first.`;
+  } else {
+    alertEl.className = 'pace-alert-box pace-ok';
+    alertEl.innerHTML = `✅ <strong>You're on track!</strong> Averaging ${avgUnits} units/term gets you to ${termNames[gradTerm]} ${gradYear}. Keep consistent and you'll make it.`;
+  }
+}
+</script>
+
 <%- include('../partials/footer') %>
